@@ -7,7 +7,7 @@ import (
 )
 
 func (server *Server) enableUserFeatures() {
-	router := server.Router
+	router := server.router
 
 	router.Static("/assets", "./public")
 

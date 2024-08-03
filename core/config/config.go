@@ -1,8 +1,13 @@
 package config
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/viper"
 )
+
+var conf Config
 
 const (
 	EnvProduction  = "production"
@@ -14,11 +19,17 @@ type Config struct {
 
 	ServerPort int `mapstructure:"SERVER_PORT"`
 
-	DBUrl string `mapstructure:"DB_URL"`
+	DBSource string `mapstructure:"DB_SOURCE"`
+
+	RedisSource string `mapstructure:"REDIS_SOURCE"`
 }
 
 func (c Config) IsProduction() bool {
 	return c.Environment == EnvProduction
+}
+
+func GetConfig() Config {
+	return conf
 }
 
 func LoadConfig(path string) (config Config, err error) {
@@ -31,4 +42,14 @@ func LoadConfig(path string) (config Config, err error) {
 	}
 	err = viper.Unmarshal(&config)
 	return
+}
+
+func Init(path string) {
+	var err error
+	conf, err = LoadConfig(path)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to load env conf: %s\n", err)
+		os.Exit(1)
+	}
 }

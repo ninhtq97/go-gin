@@ -1,8 +1,6 @@
 package services
 
-import (
-	"ninhtq/go-gin/utils/token"
-)
+import "ninhtq/go-gin/internal/utils/token"
 
 type Service interface {
 	TokenMaker() token.Maker
