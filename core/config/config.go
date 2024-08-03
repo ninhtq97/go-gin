@@ -21,6 +21,8 @@ type Config struct {
 
 	DBSource string `mapstructure:"DB_SOURCE"`
 
+	JWTSecret string `mapstructure:"JWT_SECRET"`
+
 	RedisSource string `mapstructure:"REDIS_SOURCE"`
 }
 

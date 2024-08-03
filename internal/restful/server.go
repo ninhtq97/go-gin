@@ -121,6 +121,7 @@ func Init() {
 		config: conf,
 	}
 	server.setupRouter()
+	log.Printf("server listen to port %v\n", conf.ServerPort)
 
 	if err := server.Start(); err != nil {
 		log.Fatalf("failed to load service %s\n", err)

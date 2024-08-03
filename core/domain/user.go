@@ -13,3 +13,10 @@ type User struct {
 	FullName  string
 	Email     string
 }
+
+type LoginResponse struct {
+	ID           uint   `json:"id"`
+	Email        string `json:"email"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
