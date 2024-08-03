@@ -1,9 +1,7 @@
 package restful
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"ninhtq/go-gin/internal/controllers"
 )
 
 func (server *Server) enableUserFeatures() {
@@ -13,9 +11,12 @@ func (server *Server) enableUserFeatures() {
 
 	prefixRouter := router.Group("api")
 
-	prefixRouter.GET("ping", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"message": "pong"})
-	})
+	userController := controllers.NewUserController(server.service.User(), server.config)
+	prefixRouter.GET("/users/:id", userController.ReadUser)
+	prefixRouter.GET("/users", userController.ReadUsers)
+	prefixRouter.POST("/users", userController.CreateUser)
+	prefixRouter.PUT("/users", userController.UpdateUser)
+	prefixRouter.DELETE("/users", userController.DeleteUser)
 
 	// userRouter := prefixRouter.Group("user")
 

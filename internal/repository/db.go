@@ -17,3 +17,7 @@ func NewDB(db *gorm.DB, cache *cache.RedisCache) *DB {
 		cache: cache,
 	}
 }
+
+func (db *DB) Client() *gorm.DB {
+	return db.db
+}

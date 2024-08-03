@@ -13,10 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	userService *services.UserService
-)
-
 // @Title 			Bvote API
 // @Version         1.0
 // @Description 	This is a server Bvote
@@ -46,7 +42,21 @@ func main() {
 
 	store := repository.NewDB(db, redisCache)
 
-	userService = services.NewUserService(store)
+	repo := repository.NewRepository(*store, conf)
+	log.Println("load repository done")
 
-	restful.Init()
+	service, err := services.NewService(conf, repo)
+	if err != nil {
+		log.Fatalf("failed to load service %s\n", err)
+	}
+
+	log.Printf("server listen to port %d", conf.ServerPort)
+	server := restful.NewServer(conf, service)
+
+	if err := server.Start(); err != nil {
+		log.Fatalf("failed to load service %s\n", err)
+	}
+
+	server.Wait()
+	log.Println("Stopped")
 }

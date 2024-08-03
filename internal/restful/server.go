@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"ninhtq/go-gin/core/config"
-	"ninhtq/go-gin/internal/services"
+	"ninhtq/go-gin/internal/ports"
 	"os"
 	"os/signal"
 	"reflect"
@@ -27,8 +27,17 @@ import (
 type Server struct {
 	config  config.Config
 	router  *gin.Engine
-	service services.Service
+	service ports.Service
 	wg      sync.WaitGroup
+}
+
+func NewServer(config config.Config, service ports.Service) ports.Server {
+	server := &Server{
+		config:  config,
+		service: service,
+	}
+	server.setupRouter()
+	return server
 }
 
 func (server *Server) setupRouter() {
@@ -112,21 +121,4 @@ func (server *Server) Start() error {
 
 func (server *Server) Wait() {
 	server.wg.Wait()
-}
-
-func Init() {
-	conf := config.GetConfig()
-
-	server := &Server{
-		config: conf,
-	}
-	server.setupRouter()
-	log.Printf("server listen to port %v\n", conf.ServerPort)
-
-	if err := server.Start(); err != nil {
-		log.Fatalf("failed to load service %s\n", err)
-	}
-
-	server.Wait()
-	log.Println("Stopped")
 }

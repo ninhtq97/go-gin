@@ -15,11 +15,19 @@ type UpdateUserInput struct {
 	Email    *string
 }
 
-type UserRepository interface {
+type UserService interface {
 	CreateUser(CreateUserInput) (*domain.User, error)
 	ReadUser(id uint) (*domain.User, error)
 	ReadUsers() ([]*domain.User, error)
-	UpdateUser(id uint, input UpdateUserInput) error
+	UpdateUser(id uint, params UpdateUserInput) error
 	DeleteUser(id uint) error
-	LoginUser(email, password string) (*domain.LoginResponse, error)
+	Login(email, password string) (*domain.LoginResponse, error)
+}
+
+type UserRepository interface {
+	Create(CreateUserInput) (*domain.User, error)
+	FindMany() ([]*domain.User, error)
+	FindOne(id uint) (*domain.User, error)
+	Update(id uint, input UpdateUserInput) error
+	Delete(id uint) error
 }
