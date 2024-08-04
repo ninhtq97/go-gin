@@ -3,7 +3,7 @@
 /node_modules
 /dist
 /docs/*
-!/docs/main.go
+!/docs/docs.go
 public/*
 
 # IDEs and editors
