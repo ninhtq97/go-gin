@@ -2,38 +2,36 @@ package entities
 
 import (
 	"ninhtq/go-gin/core/domain"
+	"ninhtq/go-gin/internal/utils"
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-	Username string `gorm:"username;notnull"`
-	Password string `gorm:"password;notnull"`
-	Code     string `gorm:"code;notnull"`
-	FullName string `gorm:"fullName;notnull"`
-	Email    string `gorm:"email;notnull"`
+	Entity
+	Username string `gorm:"notnull;unique"`
+	Password string `gorm:"notnull"`
+	Code     string `gorm:"notnull;unique"`
+	FullName string `gorm:"notnull"`
+	Email    string `gorm:"notnull;unique"`
 }
 
 func (data User) ToDomain() *domain.User {
 	return &domain.User{
-		ID:        data.Model.ID,
+		ID:        data.Entity.ID,
+		CreatedAt: data.Entity.CreatedAt,
 		Code:      data.Code,
 		FullName:  data.FullName,
 		Email:     data.Email,
-		CreatedAt: data.Model.CreatedAt,
-		UpdatedAt: data.Model.UpdatedAt,
 	}
 }
 
 func AsUser(arg domain.User) User {
 	return User{
-		Model: gorm.Model{
+		Entity: Entity{
 			ID:        arg.ID,
 			CreatedAt: arg.CreatedAt,
-			UpdatedAt: arg.UpdatedAt,
 		},
 		Username: arg.Username,
 		Code:     arg.Code,
@@ -42,13 +40,13 @@ func AsUser(arg domain.User) User {
 	}
 }
 
-func NewUser(arg User) User {
+func NewUser(arg User) *User {
 	now := time.Now()
-	code := uuid.New().NodeID()
+	code := utils.MakeStr(12, "")
 
-	return User{
-		Model: gorm.Model{
-			ID:        uint(uuid.New().ID()),
+	return &User{
+		Entity: Entity{
+			ID:        uuid.New().String(),
 			CreatedAt: now,
 			UpdatedAt: now,
 		},

@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"net/http"
+	"net/mail"
 	"ninhtq/go-gin/core/config"
 	"ninhtq/go-gin/internal/ports"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,14 +21,30 @@ func NewUserController(UserService ports.UserService, config config.Config) *Use
 	}
 }
 
+// CreateUser godoc
+//
+// @Description 	Get access token
+// @Tags 					User
+// @Accept 				json
+// @Produce 			json
+// @Param					auth		body				CreateUserRequest					true		"Auth admin"
+// @Success 			200 		{object}		object{message=string}
+// @Failure				401			{object}		exception.Exception
+// @Failure				422			{object}		exception.Exception
+// @Router 				/users	[POST]
 func (c *UserController) CreateUser(ctx *gin.Context) {
-	var user ports.CreateUserInput
-	if err := ctx.ShouldBindJSON(&user); err != nil {
+	var json CreateUserRequest
+	if err := ctx.ShouldBindJSON(&json); err != nil {
 		HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	_, err := c.svc.CreateUser(user)
+	_, err := c.svc.CreateUser(ports.CreateUserParams{
+		Username: json.Username,
+		Password: json.Password,
+		FullName: json.FullName,
+		Email:    json.Email,
+	})
 	if err != nil {
 		HandleError(ctx, http.StatusBadRequest, err)
 		return
@@ -39,23 +55,16 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 	})
 }
 
-func (c *UserController) ReadUser(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-
-	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
-		return
-	}
-
-	user, err := c.svc.ReadUser(uint(id))
-
-	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
-		return
-	}
-	ctx.JSON(http.StatusOK, user)
-}
-
+// ReadUsers godoc
+//
+// @Description 	Get list users
+// @Tags 					User
+// @Accept 				json
+// @Produce 			json
+// @Success 			200 		{array}			domain.User
+// @Failure				401			{object}		exception.Exception
+// @Failure				422			{object}		exception.Exception
+// @Router 				/users	[GET]
 func (c *UserController) ReadUsers(ctx *gin.Context) {
 	users, err := c.svc.ReadUsers()
 	if err != nil {
@@ -65,57 +74,104 @@ func (c *UserController) ReadUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
+// ReadUser godoc
+//
+// @Description 	Get user
+// @Tags 					User
+// @Accept 				json
+// @Produce 			json
+// @Param					id			path				string								true		"User ID"
+// @Success 			200 		{object}		domain.User
+// @Failure				401			{object}		exception.Exception
+// @Failure				422			{object}		exception.Exception
+// @Router 				/users/{id}	[GET]
+func (c *UserController) ReadUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	user, err := c.svc.ReadUser(id)
+
+	if err != nil {
+		HandleError(ctx, http.StatusBadRequest, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, user)
+}
+
+// UpdateUser godoc
+//
+// @Description 	Update info user
+// @Tags 					User
+// @Accept 				json
+// @Produce 			json
+// @Param					id			path				string										true		"User ID"
+// @Param					auth		body				UpdateUserRequest					true		"Auth admin"
+// @Success 			200 		{object}		object{message=string}
+// @Failure				401			{object}		exception.Exception
+// @Failure				422			{object}		exception.Exception
+// @Router 				/users/{id}	[PATCH]
 func (c *UserController) UpdateUser(ctx *gin.Context) {
-	// Load API configuration
-	// apiCfg, err := repository.LoadAPIConfig()
-	// if err != nil {
-	// 	HandleError(ctx, http.StatusBadRequest, err)
-	// 	return
-	// }
+	id := ctx.Param("id")
 
-	// // Validate token
-	// userID, err := ValidateToken(ctx.Request.Header.Get("Authorization"), apiCfg.JWTSecret)
-	// if err != nil {
-	// 	HandleError(ctx, http.StatusBadRequest, err)
-	// 	return
-	// }
+	var json UpdateUserRequest
+	if err := ctx.ShouldBindJSON(&json); err != nil {
+		HandleError(ctx, http.StatusBadRequest, err)
+		return
+	}
 
-	// // Update user
-	// var user domain.User
-	// if err := ctx.ShouldBindJSON(&user); err != nil {
-	// 	HandleError(ctx, http.StatusBadRequest, err)
-	// 	return
-	// }
+	if json.Email != nil {
+		_, err := mail.ParseAddress(*json.Email)
+		if err != nil {
+			HandleError(ctx, http.StatusBadRequest, err)
+			return
+		}
+	}
 
-	// err = h.svc.UpdateUser(userID, user.Email, user.Password)
-	// if err != nil {
-	// 	HandleError(ctx, http.StatusBadRequest, err)
-	// 	return
-	// }
+	user, err := c.svc.ReadUser(id)
+	if err != nil {
+		HandleError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	err = c.svc.UpdateUser(user.ID, ports.UpdateUserParams{
+		Password: json.Password,
+		FullName: json.FullName,
+		Email:    json.Email,
+	})
+	if err != nil {
+		HandleError(ctx, http.StatusBadRequest, err)
+		return
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "User updated successfully",
 	})
 }
 
+// DeleteUser godoc
+//
+// @Description 	Delete user
+// @Tags 					User
+// @Accept 				json
+// @Produce 			json
+// @Param					id			path				string								true		"User ID"
+// @Success 			200 		{object}		object{message=string}
+// @Failure				401			{object}		exception.Exception
+// @Failure				422			{object}		exception.Exception
+// @Router 				/users/{id}	[DELETE]
 func (c *UserController) DeleteUser(ctx *gin.Context) {
-	// apiCfg, err := repository.LoadAPIConfig()
-	// if err != nil {
-	// 	HandleError(ctx, http.StatusBadRequest, err)
-	// 	return
-	// }
+	id := ctx.Param("id")
 
-	// userID, err := ValidateToken(ctx.Request.Header.Get("Authorization"), apiCfg.JWTSecret)
-	// if err != nil {
-	// 	HandleError(ctx, http.StatusBadRequest, err)
-	// 	return
-	// }
+	user, err := c.svc.ReadUser(id)
+	if err != nil {
+		HandleError(ctx, http.StatusBadRequest, err)
+		return
+	}
 
-	// err = h.svc.DeleteUser(userID)
-	// if err != nil {
-	// 	HandleError(ctx, http.StatusBadRequest, err)
-	// 	return
-	// }
+	err = c.svc.DeleteUser(user.ID)
+	if err != nil {
+		HandleError(ctx, http.StatusBadRequest, err)
+		return
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "User deleted successfully",

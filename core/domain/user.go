@@ -5,17 +5,16 @@ import (
 )
 
 type User struct {
-	ID        uint
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Username  string
-	Code      string
-	FullName  string
-	Email     string
+	ID        string    `json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	Username  string    `json:"username"`
+	Code      string    `json:"code"`
+	FullName  string    `json:"fullName"`
+	Email     string    `json:"email"`
 }
 
 type LoginResponse struct {
-	ID           uint   `json:"id"`
+	ID           string `json:"id"`
 	Email        string `json:"email"`
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`

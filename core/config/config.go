@@ -46,7 +46,7 @@ func LoadConfig(path string) (config Config, err error) {
 	return
 }
 
-func Init(path string) {
+func Init(path string) Config {
 	var err error
 	conf, err = LoadConfig(path)
 
@@ -54,4 +54,6 @@ func Init(path string) {
 		fmt.Fprintf(os.Stderr, "failed to load env conf: %s\n", err)
 		os.Exit(1)
 	}
+
+	return conf
 }

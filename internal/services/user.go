@@ -15,28 +15,50 @@ func NewUserService(property serviceProperty) ports.UserService {
 	}
 }
 
-func (u *userService) CreateUser(ports.CreateUserInput) (*domain.User, error) {
-	panic("unimplemented")
-}
+func (u *userService) CreateUser(input ports.CreateUserParams) (*domain.User, error) {
+	entity, err := u.repo.User().Create(input)
 
-func (u *userService) DeleteUser(id uint) error {
-	panic("unimplemented")
-}
+	if err != nil {
+		return nil, err
+	}
 
-func (u *userService) LoginUser(email string, password string) (*domain.LoginResponse, error) {
-	panic("unimplemented")
-}
-
-func (u *userService) ReadUser(id uint) (*domain.User, error) {
-	panic("unimplemented")
+	return entity, nil
 }
 
 func (u *userService) ReadUsers() ([]*domain.User, error) {
-	panic("unimplemented")
+	entities, err := u.repo.User().FindMany()
+	if err != nil {
+		return nil, err
+	}
+
+	return entities, nil
 }
 
-func (u *userService) UpdateUser(id uint, params ports.UpdateUserInput) error {
-	panic("unimplemented")
+func (u *userService) ReadUser(id string) (*domain.User, error) {
+	entity, err := u.repo.User().FindOne(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return entity, nil
+}
+
+func (u *userService) UpdateUser(id string, params ports.UpdateUserParams) error {
+	err := u.repo.User().Update(id, params)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *userService) DeleteUser(id string) error {
+	err := u.repo.User().Delete(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (u *userService) Login(email string, password string) (*domain.LoginResponse, error) {

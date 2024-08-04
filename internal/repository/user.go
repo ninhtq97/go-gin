@@ -19,20 +19,20 @@ func NewUserRepository(db DB) ports.UserRepository {
 	return &userRepo{db: db}
 }
 
-func (r *userRepo) Create(input ports.CreateUserInput) (*domain.User, error) {
-	hashed, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+func (r *userRepo) Create(params ports.CreateUserParams) (*domain.User, error) {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(params.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("password not hashed: %v", err)
 	}
 
 	user := entities.NewUser(entities.User{
-		Username: input.Username,
-		FullName: input.FullName,
+		Username: params.Username,
+		FullName: params.FullName,
 		Password: string(hashed),
-		Email:    input.Email,
+		Email:    params.Email,
 	})
 
-	req := r.db.Client().First(&user, "email = ?", input.Email)
+	req := r.db.Client().First(&user, "username = ?", params.Username)
 	if req.RowsAffected != 0 {
 		return nil, errors.New("user already exists")
 	}
@@ -42,26 +42,6 @@ func (r *userRepo) Create(input ports.CreateUserInput) (*domain.User, error) {
 		return nil, fmt.Errorf("user not saved: %v", req.Error)
 	}
 	return user.ToDomain(), nil
-}
-
-func (r *userRepo) FindOne(id uint) (*domain.User, error) {
-	user := &domain.User{}
-	cachekey := user.ID
-	err := r.db.cache.Get(string(cachekey), &user)
-	if err == nil {
-		return user, nil
-	}
-
-	req := r.db.Client().First(&user, "id = ? ", id)
-	if req.RowsAffected == 0 {
-		return nil, errors.New("user not found")
-	}
-
-	err = r.db.cache.Set(string(cachekey), user, time.Minute*10)
-	if err != nil {
-		fmt.Printf("Error storing user in cache: %v", err)
-	}
-	return user, nil
 }
 
 func (r *userRepo) FindMany() ([]*domain.User, error) {
@@ -75,30 +55,48 @@ func (r *userRepo) FindMany() ([]*domain.User, error) {
 	return users, nil
 }
 
-func (r *userRepo) Update(id uint, input ports.UpdateUserInput) error {
+func (r *userRepo) FindOne(id string) (*domain.User, error) {
+	user := &domain.User{}
+	cachekey := user.ID
+	err := r.db.cache.Get(cachekey, &user)
+	if err == nil {
+		return user, nil
+	}
+
+	req := r.db.Client().First(&user, "id = ? ", id)
+	if req.RowsAffected == 0 {
+		return nil, errors.New("user not found")
+	}
+
+	err = r.db.cache.Set(cachekey, user, time.Minute*10)
+	if err != nil {
+		fmt.Printf("Error storing user in cache: %v", err)
+	}
+	return user, nil
+}
+
+func (r *userRepo) Update(id string, params ports.UpdateUserParams) error {
 	user := &entities.User{}
 	req := r.db.Client().First(&user, "id = ? ", id)
 	if req.RowsAffected == 0 {
 		return errors.New("user not found")
 	}
 
-	if input.Password != nil {
-		hashed, err := bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.DefaultCost)
+	if params.Password != nil {
+		hashed, err := bcrypt.GenerateFromPassword([]byte(*params.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return fmt.Errorf("password not hashed: %v", err)
 		}
 		user.Password = string(hashed)
 	}
 
-	if input.FullName != nil {
-		user.Email = *input.FullName
+	if params.FullName != nil {
+		user.FullName = *params.FullName
 	}
 
-	if input.Email != nil {
-		user.Email = *input.Email
+	if params.Email != nil {
+		user.Email = *params.Email
 	}
-
-	user.Email = *input.Email
 
 	req = r.db.Client().Model(&user).Where("id = ?", id).Updates(user)
 	if req.RowsAffected == 0 {
@@ -114,7 +112,7 @@ func (r *userRepo) Update(id uint, input ports.UpdateUserInput) error {
 	return nil
 }
 
-func (r *userRepo) Delete(id uint) error {
+func (r *userRepo) Delete(id string) error {
 	user := &domain.User{}
 	req := r.db.Client().Where("id = ?", id).Delete(&user)
 	if req.RowsAffected == 0 {

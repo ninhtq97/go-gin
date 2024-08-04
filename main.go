@@ -4,6 +4,7 @@ import (
 	"log"
 	"ninhtq/go-gin/core/config"
 	"ninhtq/go-gin/core/entities"
+	_ "ninhtq/go-gin/docs"
 	"ninhtq/go-gin/internal/cache"
 	"ninhtq/go-gin/internal/repository"
 	"ninhtq/go-gin/internal/restful"
@@ -13,20 +14,19 @@ import (
 	"gorm.io/gorm"
 )
 
-// @Title 			Bvote API
-// @Version         1.0
-// @Description 	This is a server Bvote
-// @Schemes			http https
+// @Title 				Go Gin API
+// @Version       1.0
+// @Description		This is a server for development
+// @Schemes				http https
 
-// @BasePath		/api
+// @BasePath			/api
 
 // @SecurityDefinitions.apikey Bearer
 // @In header
 // @Name authorization
 // @Description "Type 'Bearer TOKEN' to correctly set the API Key"
 func main() {
-	config.Init(".env")
-	conf := config.GetConfig()
+	conf := config.Init(".env")
 
 	db, err := gorm.Open(mysql.Open(conf.DBSource), &gorm.Config{})
 	if err != nil {

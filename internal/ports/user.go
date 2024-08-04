@@ -2,32 +2,32 @@ package ports
 
 import "ninhtq/go-gin/core/domain"
 
-type CreateUserInput struct {
+type CreateUserParams struct {
 	Username string
 	Password string
 	FullName string
 	Email    string
 }
 
-type UpdateUserInput struct {
+type UpdateUserParams struct {
 	Password *string
 	FullName *string
 	Email    *string
 }
 
 type UserService interface {
-	CreateUser(CreateUserInput) (*domain.User, error)
-	ReadUser(id uint) (*domain.User, error)
+	CreateUser(params CreateUserParams) (*domain.User, error)
 	ReadUsers() ([]*domain.User, error)
-	UpdateUser(id uint, params UpdateUserInput) error
-	DeleteUser(id uint) error
+	ReadUser(id string) (*domain.User, error)
+	UpdateUser(id string, params UpdateUserParams) error
+	DeleteUser(id string) error
 	Login(email, password string) (*domain.LoginResponse, error)
 }
 
 type UserRepository interface {
-	Create(CreateUserInput) (*domain.User, error)
+	Create(params CreateUserParams) (*domain.User, error)
 	FindMany() ([]*domain.User, error)
-	FindOne(id uint) (*domain.User, error)
-	Update(id uint, input UpdateUserInput) error
-	Delete(id uint) error
+	FindOne(id string) (*domain.User, error)
+	Update(id string, params UpdateUserParams) error
+	Delete(id string) error
 }

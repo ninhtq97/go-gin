@@ -12,11 +12,11 @@ func (server *Server) enableUserFeatures() {
 	prefixRouter := router.Group("api")
 
 	userController := controllers.NewUserController(server.service.User(), server.config)
-	prefixRouter.GET("/users/:id", userController.ReadUser)
-	prefixRouter.GET("/users", userController.ReadUsers)
 	prefixRouter.POST("/users", userController.CreateUser)
-	prefixRouter.PUT("/users", userController.UpdateUser)
-	prefixRouter.DELETE("/users", userController.DeleteUser)
+	prefixRouter.GET("/users", userController.ReadUsers)
+	prefixRouter.GET("/users/:id", userController.ReadUser)
+	prefixRouter.PATCH("/users/:id", userController.UpdateUser)
+	prefixRouter.DELETE("/users/:id", userController.DeleteUser)
 
 	// userRouter := prefixRouter.Group("user")
 
