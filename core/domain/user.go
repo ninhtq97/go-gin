@@ -15,7 +15,7 @@ type User struct {
 
 type LoginResponse struct {
 	ID           string `json:"id"`
-	Email        string `json:"email"`
+	FullName     string `json:"fullName"`
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
 }

@@ -10,15 +10,14 @@ func (server *Server) enableUserFeatures() {
 	router.Static("/assets", "./public")
 
 	prefixRouter := router.Group("api")
+	userRouter := prefixRouter.Group("users")
 
-	userController := controllers.NewUserController(server.service.User(), server.config)
-	prefixRouter.POST("/users", userController.CreateUser)
-	prefixRouter.GET("/users", userController.ReadUsers)
-	prefixRouter.GET("/users/:id", userController.ReadUser)
-	prefixRouter.PATCH("/users/:id", userController.UpdateUser)
-	prefixRouter.DELETE("/users/:id", userController.DeleteUser)
-
-	// userRouter := prefixRouter.Group("user")
+	controller := controllers.NewUserController(server.service.User(), server.config)
+	userRouter.POST("", controller.CreateUser)
+	userRouter.GET("", controller.ReadUsers)
+	userRouter.GET(":id", controller.ReadUser)
+	userRouter.PATCH("/:id", controller.UpdateUser)
+	userRouter.DELETE("/:id", controller.DeleteUser)
 
 	/*------------------------ AUTHENTICATED USER ------------------------------*/
 	// priRouter := prefixRouter.Group("")

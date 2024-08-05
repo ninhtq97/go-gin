@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"net/mail"
 	"ninhtq/go-gin/core/config"
 	"ninhtq/go-gin/internal/ports"
 
@@ -14,9 +13,9 @@ type UserController struct {
 	config config.Config
 }
 
-func NewUserController(UserService ports.UserService, config config.Config) *UserController {
+func NewUserController(svc ports.UserService, config config.Config) *UserController {
 	return &UserController{
-		svc:    UserService,
+		svc:    svc,
 		config: config,
 	}
 }
@@ -27,7 +26,7 @@ func NewUserController(UserService ports.UserService, config config.Config) *Use
 // @Tags 					User
 // @Accept 				json
 // @Produce 			json
-// @Param					auth		body				CreateUserRequest					true		"Auth admin"
+// @Param					auth		body				CreateUserRequest					true		"Body user info"
 // @Success 			200 		{object}		object{message=string}
 // @Failure				401			{object}		exception.Exception
 // @Failure				422			{object}		exception.Exception
@@ -39,7 +38,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	_, err := c.svc.CreateUser(ports.CreateUserParams{
+	_, err := c.svc.CreateUser(ports.CreateUserArgs{
 		Username: json.Username,
 		Password: json.Password,
 		FullName: json.FullName,
@@ -104,7 +103,7 @@ func (c *UserController) ReadUser(ctx *gin.Context) {
 // @Accept 				json
 // @Produce 			json
 // @Param					id			path				string										true		"User ID"
-// @Param					auth		body				UpdateUserRequest					true		"Auth admin"
+// @Param					auth		body				UpdateUserRequest					true		"Body user info"
 // @Success 			200 		{object}		object{message=string}
 // @Failure				401			{object}		exception.Exception
 // @Failure				422			{object}		exception.Exception
@@ -118,21 +117,13 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	if json.Email != nil {
-		_, err := mail.ParseAddress(*json.Email)
-		if err != nil {
-			HandleError(ctx, http.StatusBadRequest, err)
-			return
-		}
-	}
-
 	user, err := c.svc.ReadUser(id)
 	if err != nil {
 		HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	err = c.svc.UpdateUser(user.ID, ports.UpdateUserParams{
+	err = c.svc.UpdateUser(user.ID, ports.UpdateUserArgs{
 		Password: json.Password,
 		FullName: json.FullName,
 		Email:    json.Email,

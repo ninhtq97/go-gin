@@ -15,8 +15,8 @@ func NewUserService(property serviceProperty) ports.UserService {
 	}
 }
 
-func (u *userService) CreateUser(input ports.CreateUserParams) (*domain.User, error) {
-	entity, err := u.repo.User().Create(input)
+func (u *userService) CreateUser(args ports.CreateUserArgs) (*domain.User, error) {
+	entity, err := u.repo.User().Create(args)
 
 	if err != nil {
 		return nil, err
@@ -35,16 +35,18 @@ func (u *userService) ReadUsers() ([]*domain.User, error) {
 }
 
 func (u *userService) ReadUser(id string) (*domain.User, error) {
-	entity, err := u.repo.User().FindOne(id)
+	entity, err := u.repo.User().FindOne(ports.FindArgs{
+		ID: &id,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return entity, nil
+	return entity.ToDomain(), nil
 }
 
-func (u *userService) UpdateUser(id string, params ports.UpdateUserParams) error {
-	err := u.repo.User().Update(id, params)
+func (u *userService) UpdateUser(id string, args ports.UpdateUserArgs) error {
+	err := u.repo.User().Update(id, args)
 	if err != nil {
 		return err
 	}
@@ -59,8 +61,4 @@ func (u *userService) DeleteUser(id string) error {
 	}
 
 	return nil
-}
-
-func (u *userService) Login(email string, password string) (*domain.LoginResponse, error) {
-	panic("unimplemented")
 }

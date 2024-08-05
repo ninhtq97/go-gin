@@ -8,18 +8,18 @@ import (
 )
 
 type Maker interface {
-	CreateToken(userID uint, duration time.Duration) (string, *Payload, error)
+	CreateToken(userID string, duration time.Duration) (string, *Payload, error)
 	VerifyToken(token string) (*Payload, error)
 }
 
 type Payload struct {
 	ID        uuid.UUID `json:"id"`
-	UserID    uint      `json:"user_id"`
+	UserID    string    `json:"user_id"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
-func NewPayload(userID uint, duration time.Duration) (*Payload, error) {
+func NewPayload(userID string, duration time.Duration) (*Payload, error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
 		return nil, exception.New(exception.TypeInternal, "failed generate token id", err)

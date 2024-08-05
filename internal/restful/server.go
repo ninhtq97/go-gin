@@ -83,6 +83,7 @@ func (server *Server) setupRouter() {
 	})
 
 	server.router = router
+	server.enableAuthFeatures()
 	server.enableUserFeatures()
 
 	if server.config.Environment != "production" {

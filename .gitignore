@@ -3,7 +3,7 @@
 /node_modules
 /dist
 /docs/*
-!/docs/docs.go
+!/docs/.gitkeep
 public/*
 
 # IDEs and editors

@@ -9,9 +9,12 @@ import (
 	"ninhtq/go-gin/internal/repository"
 	"ninhtq/go-gin/internal/restful"
 	"ninhtq/go-gin/internal/services"
+	"os"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // @Title 				Go Gin API
@@ -28,7 +31,18 @@ import (
 func main() {
 	conf := config.Init(".env")
 
-	db, err := gorm.Open(mysql.Open(conf.DBSource), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(conf.DBSource), &gorm.Config{
+		Logger: logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+			logger.Config{
+				SlowThreshold:             time.Second,   // Slow SQL threshold
+				LogLevel:                  logger.Silent, // Log level
+				IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound error for logger
+				ParameterizedQueries:      true,          // Don't include params in the SQL log
+				Colorful:                  false,         // Disable color
+			},
+		),
+	})
 	if err != nil {
 		log.Fatalf("failed to connect database: %s\n", err)
 	}
