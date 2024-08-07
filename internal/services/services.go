@@ -32,7 +32,7 @@ func NewService(config config.Config, repo ports.Repository) (ports.Service, err
 
 	svc := services{
 		property:    property,
-		authService: NewAuthService(property, tokenMaker),
+		authService: NewAuthService(property),
 		userService: NewUserService(property),
 	}
 

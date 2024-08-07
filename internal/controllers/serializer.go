@@ -17,3 +17,7 @@ type UpdateUserRequest struct {
 	FullName *string `json:"fullName,omitempty"`
 	Email    *string `json:"email,omitempty" binding:"omitempty,email"`
 }
+
+type AuthHeader struct {
+	Token *string `header:"Authorization"`
+}

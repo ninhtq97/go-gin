@@ -15,6 +15,8 @@ func (server *Server) enableAuthFeatures() {
 	// userRouter := prefixRouter.Group("user")
 
 	/*------------------------ AUTHENTICATED USER ------------------------------*/
-	// priRouter := prefixRouter.Group("")
-	// priRouter.Use(server.VerifyUserAuthMiddleware())
+	priRouter := prefixRouter.Group("")
+	priRouter.Use(server.VerifyUserAuthMiddleware())
+
+	priRouter.GET("me", controller.Me)
 }

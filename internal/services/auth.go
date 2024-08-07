@@ -4,7 +4,6 @@ import (
 	"errors"
 	"ninhtq/go-gin/core/domain"
 	"ninhtq/go-gin/internal/ports"
-	"ninhtq/go-gin/internal/utils/token"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -12,13 +11,11 @@ import (
 
 type authService struct {
 	serviceProperty
-	tokenMarker token.Maker
 }
 
-func NewAuthService(property serviceProperty, tokenMarker token.Maker) ports.AuthService {
+func NewAuthService(property serviceProperty) ports.AuthService {
 	return &authService{
 		serviceProperty: property,
-		tokenMarker:     tokenMarker,
 	}
 }
 

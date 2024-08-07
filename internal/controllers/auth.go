@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"ninhtq/go-gin/core/config"
 	"ninhtq/go-gin/internal/ports"
+	"ninhtq/go-gin/internal/utils"
+	"ninhtq/go-gin/internal/utils/token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +24,7 @@ func NewAuthController(svc ports.AuthService, config config.Config) *AuthControl
 
 // Login godoc
 //
+// @Summary				Login to system
 // @Description 	Login
 // @Tags 					Auth
 // @Accept 				json
@@ -34,7 +37,7 @@ func NewAuthController(svc ports.AuthService, config config.Config) *AuthControl
 func (c *AuthController) Login(ctx *gin.Context) {
 	var json LoginRequest
 	if err := ctx.ShouldBindJSON(&json); err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -43,9 +46,31 @@ func (c *AuthController) Login(ctx *gin.Context) {
 		Password: json.Password,
 	})
 	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	ctx.JSON(http.StatusCreated, authorized)
+}
+
+// Me godoc
+//
+// @Security			Bearer
+// @Summary				Get info current user
+// @Description 	Me
+// @Tags 					Auth
+// @Accept 				json
+// @Produce 			json
+// @Success 			200 		{object}		domain.LoginResponse
+// @Failure				401			{object}		exception.Exception
+// @Failure				422			{object}		exception.Exception
+// @Router 				/me	[Get]
+func (c *AuthController) Me(ctx *gin.Context) {
+	user, err := token.GetMe(ctx)
+	if err != nil {
+		utils.HandleError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, user)
 }

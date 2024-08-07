@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"ninhtq/go-gin/core/config"
 	"ninhtq/go-gin/internal/ports"
+	"ninhtq/go-gin/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +35,7 @@ func NewUserController(svc ports.UserService, config config.Config) *UserControl
 func (c *UserController) CreateUser(ctx *gin.Context) {
 	var json CreateUserRequest
 	if err := ctx.ShouldBindJSON(&json); err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -45,7 +46,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 		Email:    json.Email,
 	})
 	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -67,7 +68,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 func (c *UserController) ReadUsers(ctx *gin.Context) {
 	users, err := c.svc.ReadUsers()
 	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, users)
@@ -90,7 +91,7 @@ func (c *UserController) ReadUser(ctx *gin.Context) {
 	user, err := c.svc.ReadUser(id)
 
 	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, user)
@@ -113,13 +114,13 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 
 	var json UpdateUserRequest
 	if err := ctx.ShouldBindJSON(&json); err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	user, err := c.svc.ReadUser(id)
 	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -129,7 +130,7 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 		Email:    json.Email,
 	})
 	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -154,13 +155,13 @@ func (c *UserController) DeleteUser(ctx *gin.Context) {
 
 	user, err := c.svc.ReadUser(id)
 	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	err = c.svc.DeleteUser(user.ID)
 	if err != nil {
-		HandleError(ctx, http.StatusBadRequest, err)
+		utils.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
